@@ -58,8 +58,7 @@ namespace DatingApp.API.Controllers
                 new Claim(ClaimTypes.Name, userFromRepo.Username)
             };
 
-
-            var secret  = _config.GetSection("AppSettings:Token").Value;
+            var secret = _config.GetSection("AppSettings:Token").Value;
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
 
@@ -81,6 +80,5 @@ namespace DatingApp.API.Controllers
                 token = tokenHandler.WriteToken(token)
             });
         }
-
     }
 }
