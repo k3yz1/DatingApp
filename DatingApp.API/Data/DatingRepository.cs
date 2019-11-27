@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DatingApp.API.Helpers;
 using DatingApp.API.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,17 +33,42 @@ namespace DatingApp.API.Data
 
         public Task<Photo> GetPhoto(int id)
         {
-            return _contex.Photos.FirstOrDefaultAsync(x=> x.Id == id);
+            return _contex.Photos.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public Task<User> GetUser(int id)
         {
-            return _contex.Users.Include(p=> p.Photos).FirstOrDefaultAsync(x=> x.Id == id);
+            return _contex.Users.Include(p => p.Photos).FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<IEnumerable<User>> GetUsers()
+        public async Task<PagedList<User>> GetUsers(UserParams userParams)
         {
-            return await _contex.Users.Include(p=> p.Photos).ToListAsync();
+            var users = _contex.Users.Include(p => p.Photos)
+                .OrderByDescending(u => u.LastActive)
+                .Where(u => u.Id != userParams.UserId && u.Gender == userParams.Gender);
+
+
+            if (userParams.MinAge != 18 || userParams.MaxAge != 99)
+            {
+                var minDateOfBirth = DateTime.Today.AddYears(-userParams.MaxAge - 1);
+                var maxDateOfBirth = DateTime.Today.AddYears(-userParams.MinAge);
+                users = users.Where(u => u.DateOfBirth >= minDateOfBirth && u.DateOfBirth <= maxDateOfBirth);
+            }
+
+            if (!string.IsNullOrEmpty(userParams.OrderBy))
+            {
+                switch (userParams.OrderBy)
+                {
+                    case "created":
+                        users = users.OrderByDescending(u => u.Created);
+                        break;
+                    default: 
+                        users = users.OrderByDescending(u => u.LastActive);
+                        break;
+                }
+            }
+
+            return await PagedList<User>.CreateAsync(users, userParams.PageNumber, userParams.PageSize);
         }
 
         public async Task<bool> SaveAll()
