@@ -25,22 +25,36 @@ namespace DatingApp.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>(opts =>
+            {
+                opts.UseLazyLoadingProxies();
+                opts.UseSqlite(Configuration.GetConnectionString("Default"));
+            });
+            ConfigureServices(services);
+        }
+
+        public void ConfigureProductionServices(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>(opts =>
+            {
+                opts.UseLazyLoadingProxies();
+                opts.UseMySql(Configuration.GetConnectionString("Default"));
+            });
+            ConfigureServices(services);
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(opts => opts.UseSqlite(Configuration.GetConnectionString("Default")));
-
-
             //TODO: Microsoft.AspNetCore.Mvc.NewtonsoftJson
             //System.Text.JSON is Not Ready for Prime Time: 'object cycle was detected which is not supported.'
             //services.AddControllers();
             services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
-
             services.AddCors();
 
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
-
 
             services.AddAutoMapper(typeof(DatingRepository).Assembly);
 
@@ -58,7 +72,7 @@ namespace DatingApp.API
                         ValidateAudience = false
                     };
                 });
-            
+
             services.AddScoped<LogUserActivity>();
         }
 
@@ -98,11 +112,13 @@ namespace DatingApp.API
             .AllowAnyMethod()
             .AllowAnyHeader());
 
-
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
         }
     }
