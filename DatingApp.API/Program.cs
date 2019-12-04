@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace DatingApp.API
 {
@@ -16,31 +17,52 @@ namespace DatingApp.API
         {
             var host = CreateHostBuilder(args).Build();
 
-            using(var scope = host.Services.CreateScope())
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true, reloadOnChange: true)
+                .Build();
+
+            Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
+
+            try
             {
-                var services = scope.ServiceProvider;
-                try
+                Log.Information("Application starting up");
+                using (var scope = host.Services.CreateScope())
                 {
-                    var context = services.GetRequiredService<DataContext>();                   
-                    context.Database.Migrate();
-                    await Seed.SeedUsers(context);
+                    var services = scope.ServiceProvider;
+                    try
+                    {
+                        var context = services.GetRequiredService<DataContext>();
+                        context.Database.Migrate();
+                        await Seed.SeedUsers(context);
 
+                    }
+                    catch (Exception ex)
+                    {
+                        var logger = services.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(ex, "An error occurred during migration");
+                    }
                 }
-                catch(Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred during migration");
-                }
+
+                host.Run();
             }
-
-            host.Run();
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "The application failed to start correctly");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                ;
     }
 }
