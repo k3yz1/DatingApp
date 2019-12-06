@@ -1,5 +1,3 @@
-using System.Linq.Expressions;
-using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -9,13 +7,11 @@ using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Helpers;
 using DatingApp.API.Model;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DatingApp.API.Controllers
 {
-    [ServiceFilter(typeof(LogUserActivity))]
-    [Authorize]
+    [ServiceFilter(typeof(LogUserActivity))]   
     [ApiController]
     [Route("api/users/{userId}/[controller]")]
     public class MessagesController : ControllerBase

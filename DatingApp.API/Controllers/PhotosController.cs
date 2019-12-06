@@ -8,13 +8,11 @@ using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Helpers;
 using DatingApp.API.Model;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace DatingApp.API.Controllers
-{
-    [Authorize]
+{   
     [ApiController]
     [Route("api/users/{userId}/[controller]")]
     public class PhotosController : ControllerBase

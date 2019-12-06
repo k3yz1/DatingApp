@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DatingApp.API.Model;
+using Microsoft.AspNetCore.Identity;
 
 namespace DatingApp.API.Data
 {
     public class Seed
     {
-        public async static Task SeedUsers(DataContext context)
+        public async static Task SeedUsers(UserManager<User> userManager, RoleManager<Role> roleManager)
         {
-            if (!context.Users.Any())
+            if (!userManager.Users.Any())
             {
                 var userData = File.ReadAllText("Data/UserSeedData.json");
                 var options = new JsonSerializerOptions
@@ -21,10 +22,37 @@ namespace DatingApp.API.Data
 
                 };
                 var users = JsonSerializer.Deserialize<IEnumerable<User>>(userData, options);
-                var repository = new AuthRepository(context);
+                
+                var roles = new List<Role>
+                {
+                    new Role { Name = "Member" },
+                    new Role { Name = "Admin" },
+                    new Role { Name = "Moderator" },
+                    new Role { Name = "VIP" },
+                };
+
+                foreach(var role in roles)
+                {
+                    await roleManager.CreateAsync(role);
+                }
+             
                 foreach (var user in users)
                 {
-                    await repository.Register(user, "password");
+                    await userManager.CreateAsync(user, "password"); 
+                    await userManager.AddToRoleAsync(user, "Member");                  
+                }
+
+                var adminUser = new User
+                {
+                    UserName = "admin"
+                };
+
+                var result = await userManager.CreateAsync(adminUser, "password");
+
+                if(result.Succeeded)
+                {
+                    var admin = await userManager.FindByNameAsync("admin");
+                    await userManager.AddToRolesAsync(admin, new [] { "Admin", "Moderator" });      
                 }
             }
         }

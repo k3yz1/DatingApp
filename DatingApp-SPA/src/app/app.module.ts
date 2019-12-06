@@ -7,7 +7,7 @@ import { RouterModule } from '@angular/router';
 
 import { JwtModule } from '@auth0/angular-jwt';
 import { FileUploadModule } from 'ng2-file-upload';
-import { BsDropdownModule, TabsModule, PaginationModule, ButtonsModule } from 'ngx-bootstrap';
+import { BsDropdownModule, TabsModule, PaginationModule, ButtonsModule, ModalModule } from 'ngx-bootstrap';
 import { NgxGalleryModule } from 'ngx-gallery';
 import { BsDatepickerModule } from 'ngx-bootstrap';
 import {TimeAgoPipe} from 'time-ago-pipe';
@@ -31,6 +31,11 @@ import { PhotoEditorComponent } from './members/photo-editor/photo-editor.compon
 import { ListsResolver } from './_resolvers/list.resolver';
 import { MessagesResolver } from './_resolvers/messages.resolver';
 import { MemberMessagesComponent } from './members/member-messages/member-messages.component';
+import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
+import { HasRoleDirective } from './_directives/has-role.directive';
+import { UserManagementComponent } from './admin/user-management/user-management.component';
+import { PhotoManagementComponent } from './admin/photo-management/photo-management.component';
+import { RolesModalComponent } from './admin/roles-modal/roles-modal.component';
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -57,7 +62,12 @@ export class CustomHammerConfig extends HammerGestureConfig {
     MemberEditComponent,
     PhotoEditorComponent,
     TimeAgoPipe,
-    MemberMessagesComponent
+    MemberMessagesComponent,
+    AdminPanelComponent,
+    HasRoleDirective,
+    UserManagementComponent,
+    PhotoManagementComponent,
+    RolesModalComponent
   ],
   imports: [
     BrowserModule,
@@ -73,6 +83,7 @@ export class CustomHammerConfig extends HammerGestureConfig {
     RouterModule.forRoot(appRoutes),
     NgxGalleryModule,
     FileUploadModule,
+    ModalModule.forRoot(),
     JwtModule.forRoot({
       config: {
         // tslint:disable-next-line: object-literal-shorthand
@@ -90,6 +101,9 @@ export class CustomHammerConfig extends HammerGestureConfig {
     MessagesResolver,
     ListsResolver,
     { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig }
+  ],
+  entryComponents: [
+    RolesModalComponent
   ],
   bootstrap: [AppComponent]
 })

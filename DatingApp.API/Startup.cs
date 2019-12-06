@@ -3,11 +3,15 @@ using System.Text;
 using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Helpers;
+using DatingApp.API.Model;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,19 +52,20 @@ namespace DatingApp.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //TODO: Microsoft.AspNetCore.Mvc.NewtonsoftJson
-            //System.Text.JSON is Not Ready for Prime Time: 'object cycle was detected which is not supported.'
-            //services.AddControllers();
-            services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            var builder = services.AddIdentityCore<User>(opt =>
+            {
+                opt.Password.RequireDigit = false;
+                opt.Password.RequiredLength = 4;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequireUppercase = false;
+            });
 
-            services.AddCors();
+            builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
 
-            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
-
-            services.AddAutoMapper(typeof(DatingRepository).Assembly);
-
-            services.AddScoped<IAuthRepository, AuthRepository>();
-            services.AddScoped<IDatingRepository, DatingRepository>();
+            builder.AddEntityFrameworkStores<DataContext>();
+            builder.AddRoleValidator<RoleValidator<Role>>();
+            builder.AddRoleManager<RoleManager<Role>>();
+            builder.AddSignInManager<SignInManager<User>>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -73,6 +78,31 @@ namespace DatingApp.API
                         ValidateAudience = false
                     };
                 });
+
+            services.AddAuthorization(options => 
+            {
+                options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("ModeratePhotoRole", policy => policy.RequireRole("Admin", "Moderator"));
+                options.AddPolicy("VipOnlyRole", policy => policy.RequireRole("VIP"));
+            });
+
+            //TODO: Microsoft.AspNetCore.Mvc.NewtonsoftJson
+            //System.Text.JSON is Not Ready for Prime Time: 'object cycle was detected which is not supported.'
+            //services.AddControllers();
+            services.AddControllers(options => 
+            {
+                var policy= new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            })           
+            .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+            services.AddCors();
+
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+
+            services.AddAutoMapper(typeof(DatingRepository).Assembly);
+        
+            services.AddScoped<IDatingRepository, DatingRepository>();
 
             services.AddScoped<LogUserActivity>();
         }

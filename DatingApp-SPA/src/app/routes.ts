@@ -1,3 +1,4 @@
+import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { ListsComponent } from './lists/lists.component';
 import { MessagesComponent } from './messages/messages.component';
@@ -34,7 +35,8 @@ export const appRoutes: Routes = [
         resolve: { user: MemberEditResolver},
         canDeactivate: [PreventUnsavedChangesGuard] },
       { path: 'messages', component: MessagesComponent, resolve: { messages: MessagesResolver } },
-      { path: 'lists', component: ListsComponent, resolve: { users: ListsResolver } }
+      { path: 'lists', component: ListsComponent, resolve: { users: ListsResolver } },
+      { path: 'admin', component: AdminPanelComponent, data: { roles: [ 'Admin', 'Moderator' ]} }
     ]
   },
 

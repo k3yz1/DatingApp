@@ -1,6 +1,6 @@
 [
     {
-        "Username": "Deloris",
+        "UserName": "Deloris",
         "Gender": "female",
         "DateOfBirth": "1968-10-27",
         "Password": "password",
@@ -21,7 +21,7 @@
         ]
     },
     {
-        "Username": "Alyssa",
+        "UserName": "Alyssa",
         "Gender": "female",
         "DateOfBirth": "1965-10-17",
         "Password": "password",
@@ -42,7 +42,7 @@
         ]
     },
     {
-        "Username": "Lakisha",
+        "UserName": "Lakisha",
         "Gender": "female",
         "DateOfBirth": "1962-09-12",
         "Password": "password",
@@ -63,7 +63,7 @@
         ]
     },
     {
-        "Username": "Maureen",
+        "UserName": "Maureen",
         "Gender": "female",
         "DateOfBirth": "1964-03-26",
         "Password": "password",
@@ -84,7 +84,7 @@
         ]
     },
     {
-        "Username": "Janna",
+        "UserName": "Janna",
         "Gender": "female",
         "DateOfBirth": "1999-09-14",
         "Password": "password",
@@ -105,7 +105,7 @@
         ]
     },
     {
-        "Username": "Barker",
+        "UserName": "Barker",
         "Gender": "male",
         "DateOfBirth": "1955-05-08",
         "Password": "password",
@@ -126,7 +126,7 @@
         ]
     },
     {
-        "Username": "Schroeder",
+        "UserName": "Schroeder",
         "Gender": "male",
         "DateOfBirth": "1980-08-27",
         "Password": "password",
@@ -147,7 +147,7 @@
         ]
     },
     {
-        "Username": "Hobbs",
+        "UserName": "Hobbs",
         "Gender": "male",
         "DateOfBirth": "1957-02-09",
         "Password": "password",
@@ -168,7 +168,7 @@
         ]
     },
     {
-        "Username": "Figueroa",
+        "UserName": "Figueroa",
         "Gender": "male",
         "DateOfBirth": "1972-03-19",
         "Password": "password",
@@ -189,7 +189,7 @@
         ]
     },
     {
-        "Username": "Briggs",
+        "UserName": "Briggs",
         "Gender": "male",
         "DateOfBirth": "1957-01-19",
         "Password": "password",
